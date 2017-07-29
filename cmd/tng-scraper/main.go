@@ -26,18 +26,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for ep := range fetchEpisodes() {
-		if err = saveEpisode(pool, ep); err != nil {
+	series := treksum.NewSeries("Star Trek: The Next Generation")
+	if err = series.Save(pool); err != nil {
+		log.Fatalf("unable to create series: %s", err)
+	}
+
+	for ep := range fetchEpisodes(series) {
+		if err = ep.Save(pool); err != nil {
 			log.Printf("error saving episode: %s", err)
 		}
 	}
 }
 
-func fetchEpisodes() <-chan *treksum.Episode {
+func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {
 	out := make(chan *treksum.Episode, 200)
 
 	go func() {
-		episodes, err := treksum.ParseEpisodeList()
+		episodes, err := treksum.ParseEpisodeList(series)
 		if err != nil {
 			log.Fatalf("failed to parse episode list: %s", err)
 		}

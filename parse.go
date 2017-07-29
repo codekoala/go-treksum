@@ -2,7 +2,6 @@ package treksum
 
 import (
 	"net/http"
-	"strconv"
 	"strings"
 	"time"
 
@@ -20,12 +19,13 @@ var (
 	}
 )
 
-func ParseEpisodeList() (episodes []*Episode, err error) {
+func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 	var (
-		resp *http.Response
-		doc  *html.Node
-
+		resp    *http.Response
+		doc     *html.Node
 		episode *Episode
+
+		season int
 	)
 
 	if resp, err = http.Get(url); err != nil {
@@ -37,56 +37,56 @@ func ParseEpisodeList() (episodes []*Episode, err error) {
 		return
 	}
 
-	for _, n := range htmlquery.Find(doc, "//td") {
-		text := strings.TrimSpace(htmlquery.InnerText(n))
-		text = strings.Replace(text, "\n", " ", -1)
+	for _, table := range htmlquery.Find(doc, "//td/table") {
+		var episodeNum int
+		season++
 
-		// ignore table headers
-		if strings.Contains(text, "Episode Name") {
-			continue
-		}
+		for _, tr := range htmlquery.Find(table, "//tr") {
+			for _, td := range htmlquery.Find(tr, "//td") {
+				text := strings.TrimSpace(htmlquery.InnerText(td))
+				text = strings.Replace(text, "\n", " ", -1)
 
-		// make sure there's a link to the episode transcript
-		a := htmlquery.FindOne(n, "//a/@href")
-		if a != nil && episode == nil {
-			episode = &Episode{
-				Title: text,
-				Url:   "http://chakoteya.net/NextGen/" + htmlquery.SelectAttr(a, "href"),
-			}
-			continue
-		}
-
-		if episode != nil {
-			if episode.Number == 0 {
-				if text == "101 + 102" {
-					text = "101"
-				}
-
-				// skip if we can't conver the episode number to an int
-				if episode.Number, err = strconv.Atoi(text); err != nil {
+				// ignore table headers
+				if strings.Contains(text, "Episode Name") {
 					continue
 				}
-			} else if episode.Airdate == nil {
-				// fix some dates
-				text = strings.Replace(text, "Sept", "Sep", -1)
 
-				// try matching against a series of date formats
-				for _, f := range fmts {
-					if t, err := time.Parse(f, text); err == nil {
-						episode.Airdate = &t
-
-						// found a matching date format
-						break
+				// make sure there's a link to the episode transcript
+				a := htmlquery.FindOne(td, "//a/@href")
+				if a != nil && episode == nil {
+					episodeNum++
+					episode = &Episode{
+						Series:  series,
+						Season:  season,
+						Episode: episodeNum,
+						Title:   text,
+						Url:     "http://chakoteya.net/NextGen/" + htmlquery.SelectAttr(a, "href"),
 					}
-				}
-
-				// skip if we don't have a valid airdate
-				if episode.Airdate == nil {
 					continue
 				}
 
-				episodes = append(episodes, episode)
-				episode = nil
+				if episode != nil && episode.Airdate == nil {
+					// fix some dates
+					text = strings.Replace(text, "Sept", "Sep", -1)
+
+					// try matching against a series of date formats
+					for _, f := range fmts {
+						if t, err := time.Parse(f, text); err == nil {
+							episode.Airdate = &t
+
+							// found a matching date format
+							break
+						}
+					}
+
+					// skip if we don't have a valid airdate
+					if episode.Airdate == nil {
+						continue
+					}
+
+					episodes = append(episodes, episode)
+					episode = nil
+				}
 			}
 		}
 	}

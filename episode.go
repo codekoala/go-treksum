@@ -5,12 +5,38 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/antchfx/xquery/html"
+	"github.com/jackc/pgx"
 	"golang.org/x/net/html"
+)
+
+const (
+	CREATE_EPISODE_TABLE = `
+		create table "episode" (
+			"id" serial primary key,
+			"series_id" int,
+			"season" int,
+			"episode" int,
+			"title" text,
+			"url" text,
+			"airdate" date,
+			foreign key ("series_id") references "series" ("id"),
+			unique ("series_id", "season", "episode")
+		)
+	`
+
+	INSERT_EPISODE = `
+		insert into "episode"
+			("series_id", "season", "episode", "title", "url", "airdate")
+		values
+			($1, $2, $3, $4, $5, $6::date)
+		returning ("id")
+	`
 )
 
 var lineCorrections = map[string]string{
@@ -21,8 +47,10 @@ var lineCorrections = map[string]string{
 
 type Episode struct {
 	ID      int64      `json:"id"`
+	Series  *Series    `json:"series"`
+	Season  int        `json:"season"`
+	Episode int        `json:"episode"`
 	Title   string     `json:"title"`
-	Number  int        `json:"number"`
 	Url     string     `json:"url"`
 	Airdate *time.Time `json:"airdate"`
 	Script  []*Line    `json:"script"`
@@ -50,7 +78,7 @@ func (this *Episode) ScriptString() string {
 }
 
 func (this *Episode) String() string {
-	return fmt.Sprintf("%d. %s (%s)", this.Number, this.Title, this.Airdate.Format("Jan 2, 2006"))
+	return fmt.Sprintf("S%02dE%02d %s (%s)", this.Season, this.Episode, this.Title, this.Airdate.Format("Jan 2, 2006"))
 }
 
 func (this *Episode) Fetch() (err error) {
@@ -122,6 +150,22 @@ func (this *Episode) Parse(scriptText io.Reader) (err error) {
 
 	if err = scanner.Err(); err != nil {
 		return
+	}
+
+	return nil
+}
+
+func (this *Episode) Save(pool *pgx.ConnPool) (err error) {
+	log.Printf("inserting episode: %s", this)
+	err = pool.QueryRow(INSERT_EPISODE, this.Series.ID, this.Season, this.Episode, this.Title, this.Url, this.Airdate).Scan(&this.ID)
+	if err != nil {
+		return
+	}
+
+	for _, line := range this.Script {
+		if err = line.Save(pool); err != nil {
+			return
+		}
 	}
 
 	return nil
