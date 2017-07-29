@@ -149,15 +149,15 @@ func (this *Episode) Parse(scriptText io.Reader) (err error) {
 	return nil
 }
 
-func (this *Episode) Save(pool *pgx.ConnPool) (err error) {
+func (this *Episode) Save(tx *pgx.Tx) (err error) {
 	log.Printf("inserting episode: %s", this)
-	err = pool.QueryRow(INSERT_EPISODE, this.Series.ID, this.Season, this.Episode, this.Title, this.Url, this.Airdate).Scan(&this.ID)
+	err = tx.QueryRow(INSERT_EPISODE, this.Series.ID, this.Season, this.Episode, this.Title, this.Url, this.Airdate).Scan(&this.ID)
 	if err != nil {
 		return
 	}
 
 	for _, line := range this.Script {
-		if err = line.Save(pool); err != nil {
+		if err = line.Save(tx); err != nil {
 			return
 		}
 	}

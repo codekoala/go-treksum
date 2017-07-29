@@ -40,18 +40,40 @@ func main() {
 	}
 
 	for _, s := range allSeries {
-		if err = s.Save(pool); err != nil {
-			log.Fatalf("unable to create series: %s (%s)", s, err)
-		}
-
-		for ep := range fetchEpisodes(s) {
-			if err = ep.Save(pool); err != nil {
-				log.Printf("error saving episode: %s", err)
-			}
+		if err = fetchSeries(pool, s); err != nil {
+			log.Printf(`unable to fetch series "%s": %s`, s, err)
+			continue
 		}
 	}
 
 	wg.Wait()
+}
+
+func fetchSeries(pool *pgx.ConnPool, series *treksum.Series) (err error) {
+	var tx *pgx.Tx
+
+	if tx, err = pool.Begin(); err != nil {
+		return
+	}
+	defer tx.Rollback()
+
+	if err = series.Save(tx); err != nil {
+		log.Printf("unable to create series: %s (%s)", series, err)
+		return
+	}
+
+	for ep := range fetchEpisodes(series) {
+		if err = ep.Save(tx); err != nil {
+			log.Printf("error saving episode: %s", err)
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		log.Printf("failed to commit transaction: %s", err)
+		return
+	}
+
+	return nil
 }
 
 func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {

@@ -56,8 +56,8 @@ func (this *Speaker) String() string {
 	return fmt.Sprintf("%s", this.Name)
 }
 
-func (this *Speaker) Save(pool *pgx.ConnPool) (err error) {
-	pool.Exec(INSERT_SPEAKER, this.Series.ID, this.Name)
+func (this *Speaker) Save(tx *pgx.Tx) (err error) {
+	tx.Exec(INSERT_SPEAKER, this.Series.ID, this.Name)
 
-	return pool.QueryRow(SELECT_SPEAKER, this.Series.ID, this.Name).Scan(&this.ID)
+	return tx.QueryRow(SELECT_SPEAKER, this.Series.ID, this.Name).Scan(&this.ID)
 }

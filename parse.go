@@ -1,6 +1,7 @@
 package treksum
 
 import (
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -74,6 +75,7 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 		season int
 	)
 
+	log.Printf("finding episodes: %s", series)
 	if url, err = FindEpisodesLink(series.Url); err != nil {
 		return
 	}

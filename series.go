@@ -44,6 +44,6 @@ func (this *Series) String() string {
 	return fmt.Sprintf("%s", this.Name)
 }
 
-func (this *Series) Save(pool *pgx.ConnPool) (err error) {
-	return pool.QueryRow(INSERT_SERIES, this.Name, this.Url).Scan(&this.ID)
+func (this *Series) Save(tx *pgx.Tx) (err error) {
+	return tx.QueryRow(INSERT_SERIES, this.Name, this.Url).Scan(&this.ID)
 }

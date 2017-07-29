@@ -53,13 +53,13 @@ func (this *Line) String() string {
 	return fmt.Sprintf("%s: %s", this.Speaker, this.Line)
 }
 
-func (this *Line) Save(pool *pgx.ConnPool) (err error) {
+func (this *Line) Save(tx *pgx.Tx) (err error) {
 	speaker := NewSpeaker(this.Episode.Series, this.Speaker)
-	if err = speaker.Save(pool); err != nil {
+	if err = speaker.Save(tx); err != nil {
 		log.Printf("failed to save speaker: %s (%s)", speaker, err)
 	}
 
-	err = pool.QueryRow(INSERT_LINE, this.Episode.ID, speaker.ID, this.Line).Scan(&this.ID)
+	err = tx.QueryRow(INSERT_LINE, this.Episode.ID, speaker.ID, this.Line).Scan(&this.ID)
 	if err != nil {
 		log.Printf("failed to save line: %s (%s)", this, err)
 	}
