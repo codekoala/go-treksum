@@ -1,11 +1,13 @@
 package main
 
 import (
-	"log"
+	"fmt"
+	"os"
 	"sync"
 
 	"github.com/codekoala/treksum"
 	"github.com/jackc/pgx"
+	"go.uber.org/zap"
 )
 
 var (
@@ -17,10 +19,22 @@ var (
 		treksum.NewSeries("Enterprise", "http://chakoteya.net/Enterprise/"),
 	}
 
-	wg sync.WaitGroup
+	wg  sync.WaitGroup
+	log *zap.Logger
 )
 
+func init() {
+	var err error
+
+	if log, err = zap.NewProduction(); err != nil {
+		fmt.Printf("failed to setup logger: %s", err)
+		os.Exit(1)
+	}
+}
+
 func main() {
+	defer log.Sync()
+
 	pool, err := pgx.NewConnPool(pgx.ConnPoolConfig{
 		ConnConfig: pgx.ConnConfig{
 			Host:     "localhost",
@@ -31,17 +45,17 @@ func main() {
 		MaxConnections: 20,
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("error connecting to database", zap.Error(err))
 	}
 	defer pool.Close()
 
 	if err = startFresh(pool); err != nil {
-		log.Fatal(err)
+		log.Fatal("error cleaning up tables", zap.Error(err))
 	}
 
 	for _, s := range allSeries {
 		if err = fetchSeries(pool, s); err != nil {
-			log.Printf(`unable to fetch series "%s": %s`, s, err)
+			log.Warn("unable to fetch series", zap.String("name", s.String()), zap.Error(err))
 			continue
 		}
 	}
@@ -57,39 +71,39 @@ func fetchSeries(pool *pgx.ConnPool, series *treksum.Series) (err error) {
 	}
 	defer tx.Rollback()
 
+	l := log.With(zap.String("series", series.Name))
 	if err = series.Save(tx); err != nil {
-		log.Printf("unable to create series: %s (%s)", series, err)
+		l.Warn("unable to create series", zap.Error(err))
 		return
 	}
 
-	for ep := range fetchEpisodes(series) {
+	for ep := range fetchEpisodes(l, series) {
 		if err = ep.Save(tx); err != nil {
-			log.Printf("error saving episode: %s", err)
+			l.Warn("error saving episode", zap.String("episode", ep.String()), zap.Error(err))
 		}
 	}
 
 	if err = tx.Commit(); err != nil {
-		log.Printf("failed to commit transaction: %s", err)
+		l.Warn("failed to commit transaction", zap.Error(err))
 		return
 	}
 
 	return nil
 }
 
-func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {
+func fetchEpisodes(log *zap.Logger, series *treksum.Series) <-chan *treksum.Episode {
 	out := make(chan *treksum.Episode, 200)
 
 	wg.Add(1)
 	go func() {
-		episodes, err := treksum.ParseEpisodeList(series)
+		episodes, err := treksum.ParseEpisodeList(log, series)
 		if err != nil {
-			log.Fatalf("failed to parse episode list (%s): %s", series, err)
+			log.Warn("failed to parse episode list", zap.Error(err))
 		}
 
 		for _, ep := range episodes {
-			log.Printf("Fetching episode: %s", ep)
 			if err = ep.Fetch(); err != nil {
-				log.Printf("failed to parse episode transcript (%s; %s): %s", series, ep, err)
+				log.Warn("failed to parse episode transcript", zap.Error(err))
 				continue
 			}
 			out <- ep

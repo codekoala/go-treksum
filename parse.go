@@ -1,12 +1,12 @@
 package treksum
 
 import (
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/antchfx/xquery/html"
+	"go.uber.org/zap"
 	"golang.org/x/net/html"
 )
 
@@ -65,7 +65,7 @@ func FindEpisodesLink(url string) (next string, err error) {
 	return url, nil
 }
 
-func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
+func ParseEpisodeList(log *zap.Logger, series *Series) (episodes []*Episode, err error) {
 	var (
 		resp    *http.Response
 		doc     *html.Node
@@ -73,9 +73,10 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 
 		url    string
 		season int
+		epNum  int
 	)
 
-	log.Printf("finding episodes: %s", series)
+	log.Info("finding episodes")
 	if url, err = FindEpisodesLink(series.Url); err != nil {
 		return
 	}
@@ -95,8 +96,8 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 	}
 
 	for _, table := range htmlquery.Find(doc, path) {
-		var episodeNum int
 		season++
+		epNum = 0
 
 		for _, tr := range htmlquery.Find(table, "//tr") {
 			for _, td := range htmlquery.Find(tr, "//td") {
@@ -111,14 +112,15 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 				// make sure there's a link to the episode transcript
 				a := htmlquery.FindOne(td, "//a/@href")
 				if a != nil && episode == nil {
-					episodeNum++
+					epNum++
 					episode = &Episode{
 						Series:  series,
 						Season:  season,
-						Episode: episodeNum,
+						Episode: epNum,
 						Title:   text,
 						Url:     SwitchPage(series.Url, htmlquery.SelectAttr(a, "href")),
 					}
+					episode.Log = log.With(zap.String("episode", episode.GetAbbrev()))
 					continue
 				}
 

@@ -2,10 +2,10 @@ package treksum
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/jackc/pgx"
+	"go.uber.org/zap"
 )
 
 const (
@@ -34,11 +34,15 @@ type Line struct {
 	Episode *Episode `json:"episode,omitempty"`
 	Speaker string   `json:"speaker"`
 	Line    string   `json:"line"`
+
+	log *zap.Logger
 }
 
-func NewLine(speaker, text string) (l *Line) {
+func NewLine(log *zap.Logger, speaker, text string) (l *Line) {
 	l = &Line{
 		Speaker: speaker,
+
+		log: log,
 	}
 	l.AddText(text)
 
@@ -56,12 +60,12 @@ func (this *Line) String() string {
 func (this *Line) Save(tx *pgx.Tx) (err error) {
 	speaker := NewSpeaker(this.Episode.Series, this.Speaker)
 	if err = speaker.Save(tx); err != nil {
-		log.Printf("failed to save speaker: %s (%s)", speaker, err)
+		this.log.Warn("failed to save speaker", zap.Error(err))
 	}
 
 	err = tx.QueryRow(INSERT_LINE, this.Episode.ID, speaker.ID, this.Line).Scan(&this.ID)
 	if err != nil {
-		log.Printf("failed to save line: %s (%s)", this, err)
+		this.log.Warn("failed to save line", zap.Error(err))
 	}
 
 	return

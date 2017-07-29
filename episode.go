@@ -5,13 +5,13 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/antchfx/xquery/html"
 	"github.com/jackc/pgx"
+	"go.uber.org/zap"
 	"golang.org/x/net/html"
 )
 
@@ -48,6 +48,8 @@ type Episode struct {
 	Url     string     `json:"url"`
 	Airdate *time.Time `json:"airdate"`
 	Script  []*Line    `json:"script"`
+
+	Log *zap.Logger
 }
 
 func (this *Episode) AddLine(line *Line) {
@@ -83,6 +85,7 @@ func (this *Episode) Fetch() (err error) {
 		scriptText = bytes.NewBuffer(nil)
 	)
 
+	this.Log.Info("fetching episode")
 	if resp, err = http.Get(this.Url); err != nil {
 		return
 	}
@@ -131,7 +134,7 @@ func (this *Episode) Parse(scriptText io.Reader) (err error) {
 			if strings.ToUpper(first) == first {
 				this.AddLine(line)
 				aside = false
-				line = NewLine(strings.TrimRight(first, ":"), rest)
+				line = NewLine(this.Log, strings.TrimRight(first, ":"), rest)
 				continue
 			}
 		}
@@ -150,7 +153,7 @@ func (this *Episode) Parse(scriptText io.Reader) (err error) {
 }
 
 func (this *Episode) Save(tx *pgx.Tx) (err error) {
-	log.Printf("inserting episode: %s", this)
+	this.Log.Info("inserting episode")
 	err = tx.QueryRow(INSERT_EPISODE, this.Series.ID, this.Season, this.Episode, this.Title, this.Url, this.Airdate).Scan(&this.ID)
 	if err != nil {
 		return

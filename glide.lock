@@ -1,5 +1,5 @@
-hash: ea1ae6f40f1e73e0f47d596568d5b8b3848b0b7fd0c9a0fe96e114b294b6a9be
-updated: 2017-07-29T01:15:21.148276015-04:00
+hash: 9e91d6d786a37013ec1db2e162d356c9a6c85d19a553fb27ee7d0b1646d926c8
+updated: 2017-07-29T19:37:36.605261576-04:00
 imports:
 - name: github.com/antchfx/xpath
   version: b5c552e1acbdd77b5e369eab0efd1e0f9d7090e4
@@ -19,6 +19,18 @@ imports:
   version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: go.uber.org/atomic
+  version: 4e336646b2ef9fc6e47be8e21594178f98e5ebcf
+- name: go.uber.org/multierr
+  version: 3c4937480c32f4c13a875a1829af76c98ca3d40a
+- name: go.uber.org/zap
+  version: 9d9d6135afe89b6fc4a05e9a8552526caba38048
+  subpackages:
+  - buffer
+  - internal/bufferpool
+  - internal/color
+  - internal/exit
+  - zapcore
 - name: golang.org/x/net
   version: a6577fac2d73be281a500b310739095313165611
   subpackages:
@@ -26,7 +38,7 @@ imports:
   - html/atom
   - html/charset
 - name: golang.org/x/text
-  version: 836efe42bb4aa16aaa17b9c155d8813d336ed720
+  version: a467ab3c3977c4a820c2a4a886d54eb7d68901f0
   subpackages:
   - encoding
   - encoding/charmap
