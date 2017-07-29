@@ -1,0 +1,13 @@
+package: github.com/codekoala/treksum
+import:
+- package: gopkg.in/reform.v1
+  version: ^1.2.1
+  subpackages:
+  - reform
+- package: github.com/antchfx/xquery
+- package: golang.org/x/net
+  subpackages:
+  - html
+- package: github.com/lib/pq
+- package: github.com/jackc/pgx
+  version: ^3.0.0

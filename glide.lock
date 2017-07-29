@@ -1,0 +1,50 @@
+hash: ea1ae6f40f1e73e0f47d596568d5b8b3848b0b7fd0c9a0fe96e114b294b6a9be
+updated: 2017-07-29T01:15:21.148276015-04:00
+imports:
+- name: github.com/antchfx/xpath
+  version: b5c552e1acbdd77b5e369eab0efd1e0f9d7090e4
+- name: github.com/antchfx/xquery
+  version: 0b2a6d901a1d9022b9a9f0ec8ed2a58c1b7fe383
+  subpackages:
+  - html
+- name: github.com/jackc/pgx
+  version: 69494780a8906839b5d2e9a72640846e96fe183b
+  subpackages:
+  - chunkreader
+  - internal/sanitize
+  - pgio
+  - pgproto3
+  - pgtype
+- name: github.com/lib/pq
+  version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
+- name: github.com/pkg/errors
+  version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: golang.org/x/net
+  version: a6577fac2d73be281a500b310739095313165611
+  subpackages:
+  - html
+  - html/atom
+  - html/charset
+- name: golang.org/x/text
+  version: 836efe42bb4aa16aaa17b9c155d8813d336ed720
+  subpackages:
+  - encoding
+  - encoding/charmap
+  - encoding/htmlindex
+  - encoding/internal
+  - encoding/internal/identifier
+  - encoding/japanese
+  - encoding/korean
+  - encoding/simplifiedchinese
+  - encoding/traditionalchinese
+  - encoding/unicode
+  - internal/tag
+  - internal/utf8internal
+  - language
+  - runes
+  - transform
+- name: gopkg.in/reform.v1
+  version: aa2ae077c28edaf600cb1b9067e15aca0b0179bd
+  subpackages:
+  - reform
+testImports: []
