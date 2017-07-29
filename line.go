@@ -9,14 +9,6 @@ import (
 )
 
 const (
-	CREATE_SPEAKER_TABLE = `
-		create table "speaker" (
-			"id" serial primary key,
-			"name" citext,
-			unique("name")
-		)
-	`
-
 	CREATE_LINE_TABLE = `
 		create table "line" (
 			"id" serial primary key,
@@ -28,23 +20,11 @@ const (
 		)
 	`
 
-	INSERT_SPEAKER = `
-		insert into "speaker"
-			("name")
-		select lower($1)
-		where not exists (
-			select "id"
-			from "speaker"
-			where "name" = lower($1)
-		)
-	`
-
 	INSERT_LINE = `
 		insert into "line"
 			("episode_id", "speaker_id", "line")
-		select $1, "id", $3
-		from "speaker"
-		where "name" = $2
+		values
+			($1, $2, $3)
 		returning ("id")
 	`
 )
@@ -74,8 +54,12 @@ func (this *Line) String() string {
 }
 
 func (this *Line) Save(pool *pgx.ConnPool) (err error) {
-	pool.Exec(INSERT_SPEAKER, this.Speaker)
-	err = pool.QueryRow(INSERT_LINE, this.Episode.ID, this.Speaker, this.Line).Scan(&this.ID)
+	speaker := NewSpeaker(this.Episode.Series, this.Speaker)
+	if err = speaker.Save(pool); err != nil {
+		log.Printf("failed to save speaker: %s (%s)", speaker, err)
+	}
+
+	err = pool.QueryRow(INSERT_LINE, this.Episode.ID, speaker.ID, this.Line).Scan(&this.ID)
 	if err != nil {
 		log.Printf("failed to save line: %s (%s)", this, err)
 	}

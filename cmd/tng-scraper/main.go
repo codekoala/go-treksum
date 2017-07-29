@@ -2,10 +2,13 @@ package main
 
 import (
 	"log"
+	"sync"
 
 	"github.com/codekoala/treksum"
 	"github.com/jackc/pgx"
 )
+
+var wg sync.WaitGroup
 
 func main() {
 	pool, err := pgx.NewConnPool(pgx.ConnPoolConfig{
@@ -36,11 +39,14 @@ func main() {
 			log.Printf("error saving episode: %s", err)
 		}
 	}
+
+	wg.Wait()
 }
 
 func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {
 	out := make(chan *treksum.Episode, 200)
 
+	wg.Add(1)
 	go func() {
 		episodes, err := treksum.ParseEpisodeList(series)
 		if err != nil {
@@ -57,6 +63,7 @@ func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {
 		}
 
 		close(out)
+		wg.Done()
 	}()
 
 	return out
