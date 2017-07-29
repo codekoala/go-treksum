@@ -39,12 +39,6 @@ const (
 	`
 )
 
-var lineCorrections = map[string]string{
-	"\xe0": "a",
-	"\xe8": "e",
-	"\xe9": "e",
-}
-
 type Episode struct {
 	ID      int64      `json:"id"`
 	Series  *Series    `json:"series"`
@@ -59,11 +53,7 @@ type Episode struct {
 func (this *Episode) AddLine(line *Line) {
 	if line.Speaker != "" {
 		line.Episode = this
-
-		for old, new := range lineCorrections {
-			line.Line = strings.Replace(line.Line, old, new, -1)
-		}
-
+		line.Line = CleanUnicode(line.Line)
 		this.Script = append(this.Script, line)
 	}
 }
@@ -77,8 +67,12 @@ func (this *Episode) ScriptString() string {
 	return buf.String()
 }
 
+func (this *Episode) GetAbbrev() string {
+	return fmt.Sprintf("S%02dE%02d", this.Season, this.Episode)
+}
+
 func (this *Episode) String() string {
-	return fmt.Sprintf("S%02dE%02d %s (%s)", this.Season, this.Episode, this.Title, this.Airdate.Format("Jan 2, 2006"))
+	return fmt.Sprintf("%s %s (%s)", this.GetAbbrev(), this.Title, this.Airdate.Format("Jan 2, 2006"))
 }
 
 func (this *Episode) Fetch() (err error) {

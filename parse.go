@@ -10,22 +10,43 @@ import (
 )
 
 var (
-	url  = "http://chakoteya.net/NextGen/episodes.htm"
 	fmts = []string{
 		"2 Jan, 2006",
 		"2 Jan,2006",
 		"2 Jan 2006",
 		"2 Jan. 2006",
 	}
+
+	lineCorrections = map[string]string{
+		"\xe0": "a",
+		"\xe4": "a",
+		"\xe7": "c",
+		"\xe8": "e",
+		"\xe9": "e",
+		"\xea": "e",
+		"\xef": "i",
+		"\x91": "^",
+		"\x92": "'",
+		"\xdf": "ss",
+	}
 )
 
-func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
-	var (
-		resp    *http.Response
-		doc     *html.Node
-		episode *Episode
+func CleanUnicode(in string) string {
+	for old, new := range lineCorrections {
+		in = strings.Replace(in, old, new, -1)
+	}
 
-		season int
+	return in
+}
+
+func SwitchPage(url, page string) string {
+	return url[:strings.LastIndex(url, "/")+1] + page
+}
+
+func FindEpisodesLink(url string) (next string, err error) {
+	var (
+		resp *http.Response
+		doc  *html.Node
 	)
 
 	if resp, err = http.Get(url); err != nil {
@@ -37,7 +58,41 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 		return
 	}
 
-	for _, table := range htmlquery.Find(doc, "//td/table") {
+	a := htmlquery.FindOne(doc, "//a[contains(., 'Episode')]")
+	url = SwitchPage(url, htmlquery.SelectAttr(a, "href"))
+
+	return url, nil
+}
+
+func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
+	var (
+		resp    *http.Response
+		doc     *html.Node
+		episode *Episode
+
+		url    string
+		season int
+	)
+
+	if url, err = FindEpisodesLink(series.Url); err != nil {
+		return
+	}
+
+	if resp, err = http.Get(url); err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	if doc, err = htmlquery.Parse(resp.Body); err != nil {
+		return
+	}
+
+	path := "//td/table"
+	if strings.Contains(url, "Voyager") {
+		path = "//div/table"
+	}
+
+	for _, table := range htmlquery.Find(doc, path) {
 		var episodeNum int
 		season++
 
@@ -60,7 +115,7 @@ func ParseEpisodeList(series *Series) (episodes []*Episode, err error) {
 						Season:  season,
 						Episode: episodeNum,
 						Title:   text,
-						Url:     "http://chakoteya.net/NextGen/" + htmlquery.SelectAttr(a, "href"),
+						Url:     SwitchPage(series.Url, htmlquery.SelectAttr(a, "href")),
 					}
 					continue
 				}

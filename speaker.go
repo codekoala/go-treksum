@@ -46,7 +46,7 @@ type Speaker struct {
 func NewSpeaker(series *Series, name string) (s *Speaker) {
 	s = &Speaker{
 		Series: series,
-		Name:   name,
+		Name:   CleanUnicode(name),
 	}
 
 	return s

@@ -8,7 +8,17 @@ import (
 	"github.com/jackc/pgx"
 )
 
-var wg sync.WaitGroup
+var (
+	allSeries = []*treksum.Series{
+		treksum.NewSeries("Star Trek", "http://chakoteya.net/StarTrek/index.htm"),
+		treksum.NewSeries("Star Trek: The Next Generation", "http://chakoteya.net/NextGen/"),
+		treksum.NewSeries("Star Trek: Deep Space Nine", "http://chakoteya.net/DS9/"),
+		treksum.NewSeries("Star Trek: Voyager", "http://chakoteya.net/Voyager/"),
+		treksum.NewSeries("Enterprise", "http://chakoteya.net/Enterprise/"),
+	}
+
+	wg sync.WaitGroup
+)
 
 func main() {
 	pool, err := pgx.NewConnPool(pgx.ConnPoolConfig{
@@ -29,14 +39,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	series := treksum.NewSeries("Star Trek: The Next Generation")
-	if err = series.Save(pool); err != nil {
-		log.Fatalf("unable to create series: %s", err)
-	}
+	for _, s := range allSeries {
+		if err = s.Save(pool); err != nil {
+			log.Fatalf("unable to create series: %s (%s)", s, err)
+		}
 
-	for ep := range fetchEpisodes(series) {
-		if err = ep.Save(pool); err != nil {
-			log.Printf("error saving episode: %s", err)
+		for ep := range fetchEpisodes(s) {
+			if err = ep.Save(pool); err != nil {
+				log.Printf("error saving episode: %s", err)
+			}
 		}
 	}
 
@@ -50,13 +61,13 @@ func fetchEpisodes(series *treksum.Series) <-chan *treksum.Episode {
 	go func() {
 		episodes, err := treksum.ParseEpisodeList(series)
 		if err != nil {
-			log.Fatalf("failed to parse episode list: %s", err)
+			log.Fatalf("failed to parse episode list (%s): %s", series, err)
 		}
 
 		for _, ep := range episodes {
 			log.Printf("Fetching episode: %s", ep)
 			if err = ep.Fetch(); err != nil {
-				log.Printf("failed to parse episode transcript: %s", err)
+				log.Printf("failed to parse episode transcript (%s; %s): %s", series, ep, err)
 				continue
 			}
 			out <- ep

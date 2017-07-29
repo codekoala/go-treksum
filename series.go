@@ -11,15 +11,16 @@ const (
 		create table "series" (
 			"id" serial primary key,
 			"name" citext,
+			"url" text,
 			unique("name")
 		)
 	`
 
 	INSERT_SERIES = `
 		insert into "series"
-			("name")
+			("name", "url")
 		values
-			($1)
+			($1, $2)
 		returning ("id")
 	`
 )
@@ -27,11 +28,13 @@ const (
 type Series struct {
 	ID   int64  `json:"id"`
 	Name string `json:"name"`
+	Url  string `json:"url"`
 }
 
-func NewSeries(name string) (s *Series) {
+func NewSeries(name, url string) (s *Series) {
 	s = &Series{
 		Name: name,
+		Url:  url,
 	}
 
 	return s
@@ -42,5 +45,5 @@ func (this *Series) String() string {
 }
 
 func (this *Series) Save(pool *pgx.ConnPool) (err error) {
-	return pool.QueryRow(INSERT_SERIES, this.Name).Scan(&this.ID)
+	return pool.QueryRow(INSERT_SERIES, this.Name, this.Url).Scan(&this.ID)
 }
