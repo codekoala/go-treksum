@@ -1,5 +1,5 @@
-hash: 13e53e2662d9528088fa010bd61847de805cca764840ae58d4cbb279f6d811a1
-updated: 2017-07-30T18:08:08.139111685-04:00
+hash: efd191ce957263bed0e76fd8d3a5f1db3242098582db527ffcb4284deea5b316
+updated: 2017-07-30T18:20:47.837700118-04:00
 imports:
 - name: github.com/antchfx/xpath
   version: b5c552e1acbdd77b5e369eab0efd1e0f9d7090e4
@@ -15,6 +15,8 @@ imports:
   - pgio
   - pgproto3
   - pgtype
+- name: github.com/kelseyhightower/envconfig
+  version: f611eb38b3875cc3bd991ca91c51d06446afa14c
 - name: github.com/labstack/echo
   version: 935a60782cbbc55110e7bd4b33120e4567cbee43
 - name: github.com/labstack/gommon
