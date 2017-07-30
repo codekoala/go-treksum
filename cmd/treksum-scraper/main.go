@@ -8,8 +8,8 @@ import (
 	"github.com/jackc/pgx"
 	"go.uber.org/zap"
 
-	"github.com/codekoala/treksum"
-	"github.com/codekoala/treksum/db"
+	"github.com/codekoala/go-treksum"
+	"github.com/codekoala/go-treksum/db"
 )
 
 var (

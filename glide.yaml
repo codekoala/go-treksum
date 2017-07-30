@@ -1,4 +1,4 @@
-package: github.com/codekoala/treksum
+package: github.com/codekoala/go-treksum
 import:
 - package: gopkg.in/reform.v1
   version: ^1.2.1
