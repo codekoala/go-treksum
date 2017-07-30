@@ -5,9 +5,11 @@ import (
 	"os"
 	"sync"
 
-	"github.com/codekoala/treksum"
 	"github.com/jackc/pgx"
 	"go.uber.org/zap"
+
+	"github.com/codekoala/treksum"
+	"github.com/codekoala/treksum/db"
 )
 
 var (
@@ -33,18 +35,14 @@ func init() {
 }
 
 func main() {
+	var (
+		pool *pgx.ConnPool
+		err  error
+	)
+
 	defer log.Sync()
 
-	pool, err := pgx.NewConnPool(pgx.ConnPoolConfig{
-		ConnConfig: pgx.ConnConfig{
-			Host:     "localhost",
-			Port:     5433,
-			Database: "wheaties",
-			User:     "wheaties",
-		},
-		MaxConnections: 20,
-	})
-	if err != nil {
+	if pool, err = db.Connect(); err != nil {
 		log.Fatal("error connecting to database", zap.Error(err))
 	}
 	defer pool.Close()

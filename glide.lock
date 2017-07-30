@@ -1,5 +1,5 @@
-hash: 9e91d6d786a37013ec1db2e162d356c9a6c85d19a553fb27ee7d0b1646d926c8
-updated: 2017-07-29T19:37:36.605261576-04:00
+hash: 78a22106e5d56ed7cd564f81298e84bfeb63cf9613ddad129e67019f11db1bab
+updated: 2017-07-30T00:42:16.08810013-04:00
 imports:
 - name: github.com/antchfx/xpath
   version: b5c552e1acbdd77b5e369eab0efd1e0f9d7090e4
@@ -15,10 +15,25 @@ imports:
   - pgio
   - pgproto3
   - pgtype
+- name: github.com/labstack/echo
+  version: 935a60782cbbc55110e7bd4b33120e4567cbee43
+- name: github.com/labstack/gommon
+  version: 1121fd3e243c202482226a7afe4dcd07ffc4139a
+  subpackages:
+  - color
+  - log
 - name: github.com/lib/pq
   version: dd1fe2071026ce53f36a39112e645b4d4f5793a4
+- name: github.com/mattn/go-colorable
+  version: a392f450ea64cee2b268dfaacdc2502b50a22b18
+- name: github.com/mattn/go-isatty
+  version: 57fdcb988a5c543893cc61bce354a6e24ab70022
 - name: github.com/pkg/errors
   version: c605e284fe17294bda444b34710735b29d1a9d90
+- name: github.com/valyala/bytebufferpool
+  version: e746df99fe4a3986f4d4f79e13c1e0117ce9c2f7
+- name: github.com/valyala/fasttemplate
+  version: dcecefd839c4193db0d35b88ec65b4c12d360ab0
 - name: go.uber.org/atomic
   version: 4e336646b2ef9fc6e47be8e21594178f98e5ebcf
 - name: go.uber.org/multierr
@@ -31,14 +46,25 @@ imports:
   - internal/color
   - internal/exit
   - zapcore
+- name: golang.org/x/crypto
+  version: 9477e0b78b9ac3d0b03822fd95422e2fe07627cd
+  subpackages:
+  - acme
+  - acme/autocert
 - name: golang.org/x/net
   version: a6577fac2d73be281a500b310739095313165611
   subpackages:
+  - context
+  - context/ctxhttp
   - html
   - html/atom
   - html/charset
+- name: golang.org/x/sys
+  version: 99f16d856c9836c42d24e7ab64ea72916925fa97
+  subpackages:
+  - unix
 - name: golang.org/x/text
-  version: a467ab3c3977c4a820c2a4a886d54eb7d68901f0
+  version: 3bd178b88a8180be2df394a1fbb81313916f0e7b
   subpackages:
   - encoding
   - encoding/charmap
