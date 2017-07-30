@@ -52,6 +52,7 @@ type Episode struct {
 	Log *zap.Logger
 }
 
+// AddLine adds a new line from the episode's script, cleaning up any problematic characters in the process.
 func (this *Episode) AddLine(line *Line) {
 	if line.Speaker != "" {
 		line.Episode = this
@@ -60,6 +61,7 @@ func (this *Episode) AddLine(line *Line) {
 	}
 }
 
+// ScriptString combines all lines into a single string for the entire episode's script.
 func (this *Episode) ScriptString() string {
 	buf := bytes.NewBuffer(nil)
 	for _, line := range this.Script {
@@ -69,6 +71,7 @@ func (this *Episode) ScriptString() string {
 	return buf.String()
 }
 
+// GetAbbrev returns the season and episode in the form of S00E00.
 func (this *Episode) GetAbbrev() string {
 	return fmt.Sprintf("S%02dE%02d", this.Season, this.Episode)
 }
@@ -77,6 +80,7 @@ func (this *Episode) String() string {
 	return fmt.Sprintf("%s %s (%s)", this.GetAbbrev(), this.Title, this.Airdate.Format("Jan 2, 2006"))
 }
 
+// Fetch scrapes the episode's transcript.
 func (this *Episode) Fetch() (err error) {
 	var (
 		resp *http.Response
@@ -95,6 +99,7 @@ func (this *Episode) Fetch() (err error) {
 		return
 	}
 
+	// add all regular text to a single buffer that we can parse later
 	for _, n := range htmlquery.Find(doc, "//td") {
 		scriptText.WriteString(htmlquery.InnerText(n))
 	}
@@ -102,6 +107,7 @@ func (this *Episode) Fetch() (err error) {
 	return this.Parse(scriptText)
 }
 
+// Parse extracts individual lines from the episode's transcript.
 func (this *Episode) Parse(scriptText io.Reader) (err error) {
 	var (
 		first string
@@ -152,6 +158,7 @@ func (this *Episode) Parse(scriptText io.Reader) (err error) {
 	return nil
 }
 
+// Save persists the episode and its transcript to the database.
 func (this *Episode) Save(tx *pgx.Tx) (err error) {
 	this.Log.Info("inserting episode")
 	err = tx.QueryRow(INSERT_EPISODE, this.Series.ID, this.Season, this.Episode, this.Title, this.Url, this.Airdate).Scan(&this.ID)

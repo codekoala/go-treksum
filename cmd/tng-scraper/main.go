@@ -49,10 +49,12 @@ func main() {
 	}
 	defer pool.Close()
 
+	// wipe out all existing tables
 	if err = startFresh(pool); err != nil {
 		log.Fatal("error cleaning up tables", zap.Error(err))
 	}
 
+	// scrape all series sequentially
 	for _, s := range allSeries {
 		if err = fetchSeries(pool, s); err != nil {
 			log.Warn("unable to fetch series", zap.String("name", s.String()), zap.Error(err))
@@ -63,6 +65,37 @@ func main() {
 	wg.Wait()
 }
 
+// startFresh drops and recreates all tables required for treksum.
+func startFresh(pool *pgx.ConnPool) (err error) {
+	log.Info("dropping tables")
+	if _, err = pool.Exec(`drop table if exists "series", "episode", "speaker", "line" cascade`); err != nil {
+		return
+	}
+
+	log.Info("creating series table")
+	if _, err = pool.Exec(treksum.CREATE_SERIES_TABLE); err != nil {
+		return
+	}
+
+	log.Info("creating episodes table")
+	if _, err = pool.Exec(treksum.CREATE_EPISODE_TABLE); err != nil {
+		return
+	}
+
+	log.Info("creating speakers table")
+	if _, err = pool.Exec(treksum.CREATE_SPEAKER_TABLE); err != nil {
+		return
+	}
+
+	log.Info("creating lines table")
+	if _, err = pool.Exec(treksum.CREATE_LINE_TABLE); err != nil {
+		return
+	}
+
+	return nil
+}
+
+// fetchSeries prepares a transaction for inserting all information about the specified series into the database.
 func fetchSeries(pool *pgx.ConnPool, series *treksum.Series) (err error) {
 	var tx *pgx.Tx
 
@@ -91,6 +124,7 @@ func fetchSeries(pool *pgx.ConnPool, series *treksum.Series) (err error) {
 	return nil
 }
 
+// fetchEpisodes scrapes the transcript for all episodes of the specified series.
 func fetchEpisodes(log *zap.Logger, series *treksum.Series) <-chan *treksum.Episode {
 	out := make(chan *treksum.Episode, 200)
 

@@ -49,6 +49,7 @@ func NewLine(log *zap.Logger, speaker, text string) (l *Line) {
 	return l
 }
 
+// AddText appends text to existing text in a line from the transcript.
 func (this *Line) AddText(text string) {
 	this.Line = strings.TrimSpace(fmt.Sprintf("%s %s", this.Line, text))
 }
@@ -57,6 +58,7 @@ func (this *Line) String() string {
 	return fmt.Sprintf("%s: %s", this.Speaker, this.Line)
 }
 
+// Save persists the line to the database;
 func (this *Line) Save(tx *pgx.Tx) (err error) {
 	speaker := NewSpeaker(this.Episode.Series, this.Speaker)
 	if err = speaker.Save(tx); err != nil {

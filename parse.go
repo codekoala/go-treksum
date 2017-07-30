@@ -32,6 +32,7 @@ var (
 	}
 )
 
+// CleanUnicode replaces problematic characters from the Star Trek transcripts with suitable alternatives.
 func CleanUnicode(in string) string {
 	for old, new := range lineCorrections {
 		in = strings.Replace(in, old, new, -1)
@@ -40,10 +41,12 @@ func CleanUnicode(in string) string {
 	return in
 }
 
+// SwitchPage replaces the final "index.htm" portion of a URL (if present) with a new page.
 func SwitchPage(url, page string) string {
 	return url[:strings.LastIndex(url, "/")+1] + page
 }
 
+// FindEpisodesLink searches a web page for a link to a list of episodes in a particular series and returns the URL for that page.
 func FindEpisodesLink(url string) (next string, err error) {
 	var (
 		resp *http.Response
@@ -65,6 +68,8 @@ func FindEpisodesLink(url string) (next string, err error) {
 	return url, nil
 }
 
+// ParseEpisodeList parses out each episode from a series of tables on a page that lists all episodes for a specific TV
+// series.
 func ParseEpisodeList(log *zap.Logger, series *Series) (episodes []*Episode, err error) {
 	var (
 		resp    *http.Response
@@ -90,15 +95,18 @@ func ParseEpisodeList(log *zap.Logger, series *Series) (episodes []*Episode, err
 		return
 	}
 
+	// everything EXCEPT Voyager uses the same nested table format
 	path := "//td/table"
 	if strings.Contains(url, "Voyager") {
 		path = "//div/table"
 	}
 
+	// find all tables with all episodes in a particular season
 	for _, table := range htmlquery.Find(doc, path) {
 		season++
 		epNum = 0
 
+		// find all cells in each season table
 		for _, td := range htmlquery.Find(table, "//tr/td") {
 			text := strings.TrimSpace(htmlquery.InnerText(td))
 			text = strings.Replace(text, "\n", " ", -1)
@@ -120,6 +128,8 @@ func ParseEpisodeList(log *zap.Logger, series *Series) (episodes []*Episode, err
 					Url:     SwitchPage(series.Url, htmlquery.SelectAttr(a, "href")),
 				}
 				episode.Log = log.With(zap.String("episode", episode.GetAbbrev()))
+
+				// go to the next cell
 				continue
 			}
 
