@@ -1,3 +1,5 @@
+DOCKER_TAG ?= latest
+
 cmds := api scraper
 
 all: api scraper checksums
@@ -22,4 +24,4 @@ clean:
 	rm -rf ./bin
 
 docker:
-	docker build -t codekoala/treksum .
+	docker build -t codekoala/treksum:$(DOCKER_TAG) .
