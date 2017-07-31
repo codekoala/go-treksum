@@ -9,6 +9,8 @@ go:
 install:
 - curl https://glide.sh/get | sh
 - glide install
+- curl -Lo $HOME/gopath/bin/go-build-info https://raw.githubusercontent.com/codekoala/go-build-info/master/go-build-info
+- chmod +x $HOME/gopath/bin/go-build-info
 
 deploy:
   provider: releases
