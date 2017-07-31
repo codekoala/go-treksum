@@ -32,7 +32,7 @@ after_success:
     fi
   - echo "Using docker tag $DOCKER_TAG"
   - make docker
-  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
   - if [ "$DOCKER_TAG" != "" ]; then
+      docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
       docker push codekoala/treksum:$DOCKER_TAG;
     fi
