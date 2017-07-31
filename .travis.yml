@@ -27,8 +27,12 @@ deploy:
 after_success:
   - make docker
   - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-  - [ "$TRAVIS_BRANCH" == "master" ] && DOCKER_TAG="latest" || DOCKER_TAG="$TRAVIS_TAG"
-  - echo "Using docker tag: $DOCKER_TAG"
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      export DOCKER_TAG="latest";
+    else
+      export DOCKER_TAG="$TRAVIS_TAG";
+    fi
+  - echo "Using docker tag $DOCKER_TAG"
   - if [ "$DOCKER_TAG" != "" ]; then
       docker push codekoala/treksum:$DOCKER_TAG;
     fi
