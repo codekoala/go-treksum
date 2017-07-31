@@ -12,7 +12,8 @@ deploy:
   provider: releases
   api_key:
     secure: 01dFYIPT20CjphELROS7jJ+BBmNvCMY8nnxn9cbM6VkHzkT500LLnL43IAzbpJB/R0v7LYPzANsmsQgwrIeXQ2gLqxvIO6VrtGL888itF6+W67QDpy72GUeSCCqMuZSV3k39E8EaJbX9z8Pk+GtaHXwfvZniKdhNgHxlKm1nFmlldsUa1xZVdfwfbRpMBUqDW3lcMoi/EXHX2ghYcVF1MvCQAmndSN1rvPcgahlH8hpk3M206daqqB/lymSOkre4F4YfIZWGW7gMCXQlIR7iZ1QFy8zVvOr2gOpJDbS/D6LbiMlszANCnsPOdBQ0E026g85t2FRvQwAgrDAGLz/+UP18yOjJVT+xQEyDxt/ZGfvzbnMC/tgCyR0ai3KtSeO331WUDQvLaistRItBL1XnR6dw60g9QH6Aliz3IoNyDfs9zOD52e286ewwcZ6gZuOyekzIJMNVvLWp81Z5xNKCtqfVivbH39JA3P11uT++WT3HgU56bIf18v+dFWXkXHl4HPcM4wKY8xS/NYW6Zt9tnLw2VNzIbDI2slWyY2xwjUvQFITIL+oskbo24+U3nIDtrAnHYN1T/gWv2xn6GQKaqzY3QLdYeiTV0be3Zji+jSUUrkIap6drDUWnBN4OlJWGMyIeFhiKbGIyCiQi1h0N9gVA7cJlnat6FaWLE1cyXUE=
-  file: "./bin/treksum-api"
+  file_glob: true
+  file: ./bin/*
   skip_cleanup: true
   overwrite: true
   on:

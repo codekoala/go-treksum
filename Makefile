@@ -7,3 +7,5 @@ bin:
 
 $(cmds): bin
 	go build -o ./bin/treksum-$(@) ./cmd/treksum-$(@)
+	cd ./bin/
+	sha256sum treksum-$(@) > SHA256SUMS
