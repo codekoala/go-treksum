@@ -10,7 +10,7 @@ import (
 const (
 	Version = "v0.0.4"
 
-	VersionTag = "dev"
+	VersionTag = ""
 
 	sep = "-"
 )
