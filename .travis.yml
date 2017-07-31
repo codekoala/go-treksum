@@ -1,8 +1,10 @@
 language: go
+sudo: required
+services:
+  - docker
 
 go:
-- 1.7.x
-- 1.8.x
+- release
 
 install:
 - curl https://glide.sh/get | sh
@@ -19,3 +21,13 @@ deploy:
   on:
     repo: codekoala/go-treksum
     tags: true
+
+after_success:
+  - make docker
+  - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+      docker push codekoala/treksum:latest;
+    fi
+  - if [ "$TRAVIS_TAG" != "" ]; then
+      docker push codekoala/treksum:$TRAVIS_TAG;
+    fi

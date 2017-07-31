@@ -11,8 +11,9 @@ func Connect() (*pgx.ConnPool, error) {
 		ConnConfig: pgx.ConnConfig{
 			Host:     config.Global.DbHost,
 			Port:     config.Global.DbPort,
-			Database: config.Global.DbUser,
-			User:     config.Global.DbPassword,
+			Database: config.Global.DbName,
+			User:     config.Global.DbUser,
+			Password: config.Global.DbPassword,
 		},
 		MaxConnections: 20,
 	})

@@ -15,3 +15,6 @@ checksums:
 
 clean:
 	rm -rf ./bin
+
+docker:
+	docker build -t codekoala/treksum .
