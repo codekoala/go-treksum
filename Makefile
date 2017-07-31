@@ -11,6 +11,10 @@ $(cmds): bin generate
 generate:
 	go generate
 
+compress:
+	upx ./bin/treksum-*
+	$(MAKE) checksums
+
 checksums:
 	cd ./bin/; sha256sum treksum-* > SHA256SUMS
 
