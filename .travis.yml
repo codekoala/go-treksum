@@ -1,0 +1,19 @@
+language: go
+
+go:
+  - 1.6.x
+  - 1.7.x
+  - 1.8.x
+
+install:
+  - curl https://glide.sh/get | sh
+  - glide install
+
+deploy:
+  provider: releases
+  api_key:
+  file: ./bin/treksum-api
+  skip_cleanup: true
+  overwrite: true
+  on:
+    tags: true
