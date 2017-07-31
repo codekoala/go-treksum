@@ -1,5 +1,7 @@
 # Treksum
 
+[![Travis CI Status](https://travis-ci.org/codekoala/go-treksum.svg?branch=master)](https://travis-ci.org/codekoala/go-treksum)
+
 Treksum provides access to the transcripts for all episodes of the following TV
 series:
 
