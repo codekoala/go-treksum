@@ -18,7 +18,7 @@ var (
 		treksum.NewSeries("Star Trek: The Next Generation", "http://chakoteya.net/NextGen/"),
 		treksum.NewSeries("Star Trek: Deep Space Nine", "http://chakoteya.net/DS9/"),
 		treksum.NewSeries("Star Trek: Voyager", "http://chakoteya.net/Voyager/"),
-		treksum.NewSeries("Enterprise", "http://chakoteya.net/Enterprise/"),
+		treksum.NewSeries("Star Trek: Enterprise", "http://chakoteya.net/Enterprise/"),
 	}
 
 	wg  sync.WaitGroup
