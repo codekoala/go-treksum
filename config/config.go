@@ -10,6 +10,7 @@ import (
 var Global conf
 
 type conf struct {
+	ApiAddr    string `default:":1323"`
 	DbHost     string `default:"localhost"`
 	DbPort     uint16 `default:"5432"`
 	DbName     string `default:"treksum"`

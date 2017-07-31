@@ -8,6 +8,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/codekoala/go-treksum/api"
+	"github.com/codekoala/go-treksum/config"
 	"github.com/codekoala/go-treksum/db"
 )
 
@@ -39,7 +40,7 @@ func main() {
 
 	app := api.Setup(log, pool)
 
-	if err = app.Start(":1323"); err != nil {
+	if err = app.Start(config.Global.ApiAddr); err != nil {
 		log.Warn("server error", zap.Error(err))
 	}
 }
