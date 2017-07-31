@@ -12,7 +12,32 @@ series:
 * Star Trek: The Next Generation
 * Star Trek: Deep Space Nine
 * Star Trek: Voyager
-* Enterprise
+* Star Trek: Enterprise
+
+## What's Included
+
+There are currently two utilities contained in this repository:
+
+* treksum-scraper: scrapes Star Trek transcripts and shoves everything into a
+  PostgreSQL database.
+* treksum-api: a simple API to serve up random quotes from the populated
+  PostgreSQL database. This utility is useless without the PostgreSQL database.
+
+## Usage
+
+The following environment variables are used to configure both utilities:
+
+* ``TREKSUM_DBHOST``: IP address for PostgreSQL service. Default: ``localhost``
+* ``TREKSUM_DBPORT``: Port on which PostgreSQL is listening. Default: ``5432``
+* ``TREKSUM_DBNAME``: Name of PostgreSQL database where transcripts reside.
+  Default: ``treksum``
+* ``TREKSUM_DBUSER``: PostgreSQL username. Default: ``treksum``
+* ``TREKSUM_DBPASSWORD``: PostgreSQL password. No default.
+
+The following environment variable is used only for ``treksum-api``:
+
+* ``TREKSUM_APIADDR``: interface and port to bind when serving requests.
+  Default: ``:1323``
 
 ## Credits
 

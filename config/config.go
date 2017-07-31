@@ -14,7 +14,7 @@ type conf struct {
 	DbHost     string `default:"localhost"`
 	DbPort     uint16 `default:"5432"`
 	DbName     string `default:"treksum"`
-	DbUser     string
+	DbUser     string `default:"treksum"`
 	DbPassword string
 }
 
