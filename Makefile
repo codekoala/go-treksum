@@ -1,7 +1,5 @@
 cmds := api scraper
 
-build: api checksums
-
 all: api scraper checksums
 
 bin:
