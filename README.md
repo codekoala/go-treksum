@@ -18,10 +18,11 @@ series:
 
 There are currently two utilities contained in this repository:
 
-* treksum-scraper: scrapes Star Trek transcripts and shoves everything into a
-  PostgreSQL database.
-* treksum-api: a simple API to serve up random quotes from the populated
-  PostgreSQL database. This utility is useless without the PostgreSQL database.
+* ``treksum-scraper``: scrapes Star Trek transcripts and shoves everything into
+  a PostgreSQL database.
+* ``treksum-api``: a simple API to serve up random quotes from a PostgreSQL
+  database. This utility is useless without first having used
+  ``treksum-scraper`` to populate the PostgreSQL database.
 
 ## Usage
 
@@ -38,6 +39,8 @@ The following environment variable is used only for ``treksum-api``:
 
 * ``TREKSUM_APIADDR``: interface and port to bind when serving requests.
   Default: ``:1323``
+
+With the appropriate environment variables set, simply invoke the desired command.
 
 ## Credits
 
