@@ -5,8 +5,11 @@ all: api scraper checksums
 bin:
 	mkdir -p ./bin/
 
-$(cmds): bin
+$(cmds): bin generate
 	go build -o ./bin/treksum-$(@) ./cmd/treksum-$(@)
+
+generate:
+	go generate
 
 checksums:
 	cd ./bin/; sha256sum treksum-* > SHA256SUMS

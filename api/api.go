@@ -7,6 +7,8 @@ import (
 	"github.com/jackc/pgx"
 	"github.com/labstack/echo"
 	"go.uber.org/zap"
+
+	"github.com/codekoala/go-treksum"
 )
 
 const (
@@ -52,6 +54,10 @@ func Setup(l *zap.Logger, p *pgx.ConnPool) (app *echo.Echo) {
 	pool = p
 
 	app = echo.New()
+
+	app.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, treksum.AppInfo)
+	})
 
 	app.GET("/api/v1/random", RandomQuote)
 	app.GET("/api/v1/random/:speaker", RandomQuote)

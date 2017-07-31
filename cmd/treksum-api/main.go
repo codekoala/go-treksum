@@ -1,16 +1,20 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
 	"github.com/jackc/pgx"
 	"go.uber.org/zap"
 
+	"github.com/codekoala/go-treksum"
 	"github.com/codekoala/go-treksum/api"
 	"github.com/codekoala/go-treksum/config"
 	"github.com/codekoala/go-treksum/db"
 )
+
+const appname = "treksum-api"
 
 var (
 	log *zap.Logger
@@ -18,6 +22,17 @@ var (
 
 func init() {
 	var err error
+
+	treksum.AppInfo.App = appname
+
+	flag.Parse()
+	if flag.NArg() > 0 {
+		switch flag.Arg(0) {
+		case "version":
+			fmt.Println(treksum.AppInfo.String())
+			os.Exit(0)
+		}
+	}
 
 	if log, err = zap.NewProduction(); err != nil {
 		fmt.Printf("failed to setup logger: %s", err)
