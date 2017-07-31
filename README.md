@@ -1,6 +1,9 @@
 # Treksum
 
 [![Travis CI Status](https://travis-ci.org/codekoala/go-treksum.svg?branch=master)](https://travis-ci.org/codekoala/go-treksum)
+[![License BSD3](https://img.shields.io/badge/license-BSD3-blue.svg)](https://raw.githubusercontent.com/codekoala/go-treksum/master/LICENSE)
+[![Downloads](https://img.shields.io/github/downloads/codekoala/go-treksum/total.svg)](https://github.com/codekoala/go-treksum/releases)
+[![Docker Pulls](https://img.shields.io/docker/pulls/codekoala/treksum.svg?label=docker+pulls)](https://hub.docker.com/r/codekoala/treksum/)
 
 Treksum provides access to the transcripts for all episodes of the following TV
 series:
